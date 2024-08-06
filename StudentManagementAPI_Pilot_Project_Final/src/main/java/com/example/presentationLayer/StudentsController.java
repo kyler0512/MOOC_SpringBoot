@@ -4,6 +4,8 @@ import com.example.serviceLayer.DTOs.ErrorDTO;
 import com.example.serviceLayer.DTOs.ValidationDTO;
 import com.example.serviceLayer.IStudentService;
 import com.example.serviceLayer.DTOs.StudentDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.executable.ValidateOnExecution;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 @RestController
 @RequestMapping("/api/students")
 public class StudentsController {
@@ -58,18 +61,9 @@ public class StudentsController {
     }
 
     @PutMapping(path = "/{id}", headers = {headerAPIVersion1})
-    public ResponseEntity<?> update(@RequestBody StudentDTO studentDTO, @PathVariable("id") int studentId) {
-        try {
-            studentService.update(studentId, studentDTO);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception exception) {
-            var errorModel = new ErrorDTO("update(Student student, int studentId)",
-                    Arrays.stream(exception.getStackTrace()).findFirst().toString(),
-                    exception.getMessage(),
-                    exception.getStackTrace().toString());
-
-            return new ResponseEntity<ErrorDTO>(errorModel, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> update(@RequestBody @Valid StudentDTO  studentDTO, @PathVariable("id") int studentId) {
+        studentService.update(studentId, studentDTO);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "/{id}", headers = {headerAPIVersion1})
