@@ -8,6 +8,9 @@ import com.example.serviceLayer.DTOs.GradeDTO;
 import com.example.serviceLayer.DTOs.StudentDTO;
 import com.example.serviceLayer.IGradeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,9 +47,8 @@ public class GradeService implements IGradeService {
     @Override
     public List<GradeDTO> read(int pageNumber, int pageSize, String sortField, String sortType) {
         List<GradeDTO> gradeDTOS = new ArrayList<>();
-
-        //TODO: add paging and sorting logic here
-
+        Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortField));
+        baseGradeRepository.findAll(paging);
         return gradeDTOS;
     }
 
