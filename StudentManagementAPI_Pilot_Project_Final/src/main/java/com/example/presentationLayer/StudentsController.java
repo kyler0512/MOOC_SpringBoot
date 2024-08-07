@@ -1,23 +1,22 @@
 package com.example.presentationLayer;
 
-import com.example.serviceLayer.DTOs.ErrorDTO;
-import com.example.serviceLayer.DTOs.ValidationDTO;
 import com.example.serviceLayer.IStudentService;
 import com.example.serviceLayer.DTOs.StudentDTO;
 import jakarta.validation.Valid;
-import jakarta.validation.executable.ValidateOnExecution;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 @RestController
 @RequestMapping("/api/students")
+@Validated
 public class StudentsController {
     private final String headerAPIVersion1 = "X-API-VERSION=v1";
 
@@ -25,8 +24,8 @@ public class StudentsController {
     IStudentService studentService;
 
     @GetMapping("/studentsWithPagingAndSorting")
-    public ResponseEntity<List<StudentDTO>> read(@RequestParam("pageSize") int pageSize,
-                                                 @RequestParam("pageNumber") int pageNumber,
+    public ResponseEntity<List<StudentDTO>> read(@RequestParam("pageSize") @Positive int pageSize,
+                                                 @RequestParam("pageNumber") @Positive int pageNumber,
                                                  @RequestParam("sortField") String sortField,
                                                  @RequestParam("sortType") String sortType) {
         return new ResponseEntity<List<StudentDTO>>(studentService.read(pageNumber, pageSize, sortField, sortType), HttpStatus.OK);
@@ -49,15 +48,9 @@ public class StudentsController {
     }
 
     @PostMapping(path = "", headers = {headerAPIVersion1})
-    public ResponseEntity create(@RequestBody StudentDTO studentDTO) {
-        ErrorDTO errorDTO = studentService.validateStudent(studentDTO);
-        if (StringUtils.isBlank(errorDTO.getMessage())) {
-            var studentAfterCreated = studentService.create(studentDTO);
-            return new ResponseEntity<StudentDTO>(studentAfterCreated, HttpStatus.CREATED);
-        } else {
-            var validationModel = new ValidationDTO("create(student)", errorDTO.getDestination(), errorDTO.getMessage());
-            return new ResponseEntity<ValidationDTO>(validationModel, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<StudentDTO> create(@RequestBody @Valid StudentDTO studentDTO) {
+        var studentAfterCreated = studentService.create(studentDTO);
+        return new ResponseEntity<StudentDTO>(studentAfterCreated, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}", headers = {headerAPIVersion1})

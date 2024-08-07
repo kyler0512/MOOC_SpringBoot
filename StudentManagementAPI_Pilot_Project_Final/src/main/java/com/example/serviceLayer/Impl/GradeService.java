@@ -1,22 +1,22 @@
 package com.example.serviceLayer.Impl;
 
-import com.example.repositoryLayer.Entities.GradeEntity;
-import com.example.repositoryLayer.IBaseGradeRepository;
-import com.example.repositoryLayer.IGradeRepository;
-import com.example.serviceLayer.DTOs.ErrorDTO;
-import com.example.serviceLayer.DTOs.GradeDTO;
-import com.example.serviceLayer.DTOs.StudentDTO;
-import com.example.serviceLayer.IGradeService;
-import com.example.utils.ErrorMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.Service;
-
-import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.example.repositoryLayer.IBaseGradeRepository;
+import com.example.repositoryLayer.IGradeRepository;
+import com.example.repositoryLayer.Entities.GradeEntity;
+import com.example.serviceLayer.IGradeService;
+import com.example.serviceLayer.DTOs.GradeDTO;
 
 @Service
 public class GradeService implements IGradeService {
@@ -31,9 +31,9 @@ public class GradeService implements IGradeService {
     public List<GradeDTO> read() {
         var gradeEntities = baseGradeRepository.findAll();
         List<GradeDTO> gradeDTOS = new ArrayList<>();
-        for(int i = 0; i < gradeEntities.size(); i++)
-        {
-            var gradeDTO = new GradeDTO(gradeEntities.get(i).getId(), gradeEntities.get(i).getName(), gradeEntities.get(i).getScore(), gradeEntities.get(i).getStudentId());
+        for (int i = 0; i < gradeEntities.size(); i++) {
+            var gradeDTO = new GradeDTO(gradeEntities.get(i).getId(), gradeEntities.get(i).getName(),
+                    gradeEntities.get(i).getScore(), gradeEntities.get(i).getStudentId());
             gradeDTOS.add(gradeDTO);
         }
         return gradeDTOS;
@@ -42,7 +42,8 @@ public class GradeService implements IGradeService {
     @Override
     public GradeDTO read(int id) {
         var gradeEntity = gradeRepository.read(id);
-        return new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(), gradeEntity.getStudentId());
+        return new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(),
+                gradeEntity.getStudentId());
     }
 
     @Override
@@ -52,10 +53,12 @@ public class GradeService implements IGradeService {
         if (sortType.equalsIgnoreCase("desc")) {
             currentSortType = Sort.Direction.DESC;
         }
-        Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(currentSortType, sortField.replace("\"", "").trim()));
+        Pageable paging = PageRequest.of(pageNumber, pageSize,
+                Sort.by(currentSortType, sortField.replace("\"", "").trim()));
         Page<GradeEntity> dataEntityList = baseGradeRepository.findAll(paging);
         dataEntityList.stream().forEach(gradeEntity -> {
-            GradeDTO gradeDTO = new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(), gradeEntity.getStudentId());
+            GradeDTO gradeDTO = new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(),
+                    gradeEntity.getStudentId());
             gradeDTOS.add(gradeDTO);
         });
         return gradeDTOS;
@@ -67,19 +70,17 @@ public class GradeService implements IGradeService {
         Stream<GradeEntity> gradeEntities;
         switch (searchField.toLowerCase()) {
             case "name" -> gradeEntities = baseGradeRepository.findAll().stream().filter(
-                    gradeEntity -> gradeEntity.getName().equals(searchValue)
-            );
+                    gradeEntity -> gradeEntity.getName().equals(searchValue));
             case "score" -> gradeEntities = baseGradeRepository.findAll().stream().filter(
-                    gradeEntity -> Objects.equals(gradeEntity.getScore(), Double.valueOf(searchValue))
-            );
+                    gradeEntity -> Objects.equals(gradeEntity.getScore(), Double.valueOf(searchValue)));
             case "studentid" -> gradeEntities = baseGradeRepository.findAll().stream().filter(
-                    gradeEntity -> Objects.equals(gradeEntity.getStudentId(), Integer.valueOf(searchValue))
-            );
+                    gradeEntity -> Objects.equals(gradeEntity.getStudentId(), Integer.valueOf(searchValue)));
             default -> gradeEntities = baseGradeRepository.findAll().stream();
         }
 
         gradeEntities.forEach(gradeEntity -> {
-            GradeDTO dto = new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(), gradeEntity.getStudentId());
+            GradeDTO dto = new GradeDTO(gradeEntity.getId(), gradeEntity.getName(), gradeEntity.getScore(),
+                    gradeEntity.getStudentId());
             gradeDTOS.add(dto);
         });
 
@@ -109,13 +110,4 @@ public class GradeService implements IGradeService {
         baseGradeRepository.deleteById(id);
     }
 
-    @Override
-    public ErrorDTO validateGrade(GradeDTO gradeDTO) {
-        ErrorDTO errorDTO = new ErrorDTO();
-        if (ValueRange.of(0, 10).isValidValue(gradeDTO.getScore().longValue())) {
-            errorDTO.setMessage(ErrorMessage.ERROR_SCORE);
-            errorDTO.setDestination("validateGrade(gradeDTO)");
-        }
-        return errorDTO;
-    }
 }

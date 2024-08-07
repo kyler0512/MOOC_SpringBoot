@@ -1,6 +1,5 @@
 package com.example.serviceLayer;
 
-import com.example.serviceLayer.DTOs.ErrorDTO;
 import com.example.serviceLayer.DTOs.StudentDTO;
 import org.springframework.stereotype.Service;
 
@@ -17,5 +16,4 @@ public interface IStudentService {
     //additional methods
     List<StudentDTO> read(int pageNumber, int pageSize, String sortField, String sortType);
     List<StudentDTO> read(String searchField, String searchValue);
-    ErrorDTO validateStudent(StudentDTO student);
 }

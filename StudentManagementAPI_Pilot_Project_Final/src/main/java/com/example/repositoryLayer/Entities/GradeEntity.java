@@ -1,6 +1,5 @@
 package com.example.repositoryLayer.Entities;
 
-import com.example.serviceLayer.DTOs.GradeDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

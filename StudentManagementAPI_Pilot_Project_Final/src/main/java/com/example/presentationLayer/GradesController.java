@@ -1,20 +1,22 @@
 package com.example.presentationLayer;
 
-import com.example.serviceLayer.DTOs.ErrorDTO;
 import com.example.serviceLayer.DTOs.GradeDTO;
-import com.example.serviceLayer.DTOs.ValidationDTO;
 import com.example.serviceLayer.IGradeService;
-import org.apache.commons.lang3.StringUtils;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/grades")
+@Validated
+
 public class GradesController {
 
     private final String headerAPIVersion1 = "X-API-VERSION=v1";
@@ -29,15 +31,9 @@ public class GradesController {
     }
 
     @PostMapping(path = "", headers = {headerAPIVersion2})
-    public ResponseEntity create(@RequestBody GradeDTO gradeDTO) {
-        ErrorDTO errorDTO = gradeService.validateGrade(gradeDTO);
-        if (StringUtils.isBlank(errorDTO.getMessage())) {
-            var gradeAfterCreated = gradeService.create(gradeDTO);
-            return new ResponseEntity<GradeDTO>(gradeAfterCreated, HttpStatus.CREATED);
-        } else {
-            var validationModel = new ValidationDTO("create(grade)", errorDTO.getDestination(), errorDTO.getMessage());
-            return new ResponseEntity<ValidationDTO>(validationModel, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<GradeDTO> create(@RequestBody @Valid GradeDTO gradeDTO) {
+        var gradeAfterCreated = gradeService.create(gradeDTO);
+        return new ResponseEntity<GradeDTO>(gradeAfterCreated, HttpStatus.CREATED);
     }
 
     @GetMapping(path = "/{id}", headers = {headerAPIVersion2})
@@ -51,18 +47,9 @@ public class GradesController {
     }
 
     @PutMapping(path = "/{id}", headers = {headerAPIVersion2})
-    public ResponseEntity<?> read(@PathVariable("id") int gradeId, GradeDTO gradeDTO) {
-        try {
-            gradeService.update(gradeId, gradeDTO);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception exception) {
-            var errorModel = new ErrorDTO("update(Grade grade, int gradeId)",
-                    Arrays.stream(exception.getStackTrace()).findFirst().toString(),
-                    exception.getMessage(),
-                    exception.getStackTrace().toString());
-
-            return new ResponseEntity<ErrorDTO>(errorModel, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> read(@PathVariable("id") int gradeId, @RequestBody @Valid GradeDTO gradeDTO) {
+        gradeService.update(gradeId, gradeDTO);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "/{id}", headers = {headerAPIVersion2})
@@ -72,10 +59,10 @@ public class GradesController {
     }
 
     @GetMapping(path = "/gradesWithPagingAndSorting", headers = {headerAPIVersion2})
-    public ResponseEntity<List<GradeDTO>> read(@RequestParam("pageSize") int pageSize,
-                                                 @RequestParam("pageNumber") int pageNumber,
-                                                 @RequestParam("sortField") String sortField,
-                                                 @RequestParam("sortType") String sortType) {
+    public ResponseEntity<List<GradeDTO>> read( @Positive @RequestParam("pageSize") int pageSize,
+                                                @Positive @RequestParam("pageNumber")  int pageNumber,
+                                                @RequestParam("sortField")  String sortField,
+                                                @RequestParam("sortType")  String sortType) {
         return new ResponseEntity<List<GradeDTO>>(gradeService.read(pageNumber, pageSize, sortField, sortType), HttpStatus.OK);
     }
 

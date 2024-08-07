@@ -1,8 +1,6 @@
 package com.example.serviceLayer;
 
-import com.example.serviceLayer.DTOs.ErrorDTO;
 import com.example.serviceLayer.DTOs.GradeDTO;
-import com.example.serviceLayer.DTOs.StudentDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,5 +14,4 @@ public interface IGradeService {
     GradeDTO create(GradeDTO grade);
     void update(int id, GradeDTO grade);
     void delete(int id);
-    ErrorDTO validateGrade(GradeDTO gradeDTO);
 }
