@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/students/")
+@RequestMapping("/api/students")
 public class StudentsController {
     private final String headerAPIVersion1 = "X-API-VERSION=v1";
 
@@ -35,7 +35,7 @@ public class StudentsController {
         return new ResponseEntity<List<StudentDTO>>(studentService.read(searchField, searchValue), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/", headers = {headerAPIVersion1})
+    @GetMapping(path = "", headers = {headerAPIVersion1})
     public ResponseEntity<List<StudentDTO>> read() {
         return new ResponseEntity<List<StudentDTO>>(studentService.read(), HttpStatus.OK);
     }
@@ -45,7 +45,7 @@ public class StudentsController {
         return new ResponseEntity<StudentDTO>(studentService.read(studentId), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/", headers = {headerAPIVersion1})
+    @PostMapping(path = "", headers = {headerAPIVersion1})
     public ResponseEntity create(@RequestBody StudentDTO studentDTO) {
         ErrorDTO errorDTO = studentService.validateStudent(studentDTO);
         if (StringUtils.isBlank(errorDTO.getMessage())) {
