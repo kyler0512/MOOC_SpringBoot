@@ -23,12 +23,12 @@ public class GradesController {
     @Autowired
     IGradeService gradeService;
 
-    @GetMapping(path = "/", headers = {headerAPIVersion2})
+    @GetMapping(path = "", headers = {headerAPIVersion2})
     public ResponseEntity<List<GradeDTO>> read(){
         return new ResponseEntity<List<GradeDTO>>(gradeService.read(), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/", headers = {headerAPIVersion2})
+    @PostMapping(path = "", headers = {headerAPIVersion2})
     public ResponseEntity create(@RequestBody GradeDTO gradeDTO) {
         ErrorDTO errorDTO = gradeService.validateGrade(gradeDTO);
         if (StringUtils.isBlank(errorDTO.getMessage())) {
